@@ -2171,7 +2171,8 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
       return;
     }
 
-    final BeautifyVideoProcessor videoProcessor = new BeautifyVideoProcessor();
+    final Context context = getApplicationContext();
+    final BeautifyVideoProcessor videoProcessor = new BeautifyVideoProcessor(context);
 
     getUserMediaImpl.setVideoProcessor(trackId, videoProcessor);
   }
