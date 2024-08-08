@@ -32,6 +32,7 @@ import com.cloudwebrtc.webrtc.utils.ObjectType;
 import com.cloudwebrtc.webrtc.utils.PermissionUtils;
 import com.cloudwebrtc.webrtc.utils.Utils;
 import com.twilio.audioswitch.AudioDevice;
+import com.cloudwebrtc.webrtc.video.BeautifyVideoProcessor;
 
 import org.webrtc.AudioTrack;
 import org.webrtc.CryptoOptions;
@@ -908,6 +909,12 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
           params.putString("state", Utils.connectionStateString(pc.connectionState()));
           result.success(params.toMap());
         }
+        break;
+      }
+      case "enableBeautifyVideoProcessor": {
+        final String trackId = call.argument("trackId");
+        mediaStreamTrackEnableBeautifyVideoProcessor(trackId);
+        result.success(null);
         break;
       }
       default:
@@ -2153,5 +2160,19 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
             context,
             activity,
             permissions.toArray(new String[permissions.size()]), callback);
+  }
+
+  public void mediaStreamTrackEnableBeautifyVideoProcessor(final String trackId) {
+    Log.d(TAG, "mediaStreamTrackEnableBeautifyVideoProcessor called");
+
+    final MediaStreamTrack track = getTrackForId(trackId, null);
+    if (track == null || track instanceof AudioTrack) {
+      Log.d(TAG, "track not found or it is audio track: " + trackId);
+      return;
+    }
+
+    final BeautifyVideoProcessor videoProcessor = new BeautifyVideoProcessor();
+
+    getUserMediaImpl.setVideoProcessor(trackId, videoProcessor);
   }
 }

@@ -129,4 +129,11 @@ class MediaStreamTrackNative extends MediaStreamTrack {
       <String, dynamic>{'trackId': _trackId},
     );
   }
+
+  Future<void> enableBeautifyVideoProcessor() async {
+    await WebRTC.invokeMethod(
+      'enableBeautifyVideoProcessor',
+      <String, dynamic>{'trackId': _trackId},
+    );
+  }
 }

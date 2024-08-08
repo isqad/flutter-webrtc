@@ -75,6 +75,7 @@ import org.webrtc.VideoCapturer;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 import org.webrtc.audio.JavaAudioDeviceModule;
+import org.webrtc.VideoProcessor;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -108,6 +109,7 @@ class GetUserMediaImpl {
 
     private final Map<String, VideoCapturerInfo> mVideoCapturers = new HashMap<>();
     private final Map<String, SurfaceTextureHelper> mSurfaceTextureHelpers = new HashMap<>();
+    private final Map<String, VideoSource> mVideoSources = new HashMap<>();
     private final StateProvider stateProvider;
     private final Context applicationContext;
 
@@ -565,6 +567,8 @@ class GetUserMediaImpl {
 
         tracks[0] = pcFactory.createVideoTrack(trackId, videoSource);
 
+        mVideoSources.put(trackId, videoSource);
+
         ConstraintsArray audioTracks = new ConstraintsArray();
         ConstraintsArray videoTracks = new ConstraintsArray();
         ConstraintsMap successResult = new ConstraintsMap();
@@ -815,6 +819,8 @@ class GetUserMediaImpl {
 
         VideoTrack track = pcFactory.createVideoTrack(trackId, videoSource);
         mediaStream.addTrack(track);
+
+        mVideoSources.put(trackId, videoSource);
 
         stateProvider.putLocalTrack(track.id(), track);
 
@@ -1336,5 +1342,29 @@ class GetUserMediaImpl {
             }
         }
         return -1;
+    }
+
+    void setVideoProcessor(final String trackId, VideoProcessor processor) {
+        Log.d(TAG, "setVideoProcessor for track " + trackId);
+
+        final VideoSource source = mVideoSources.get(trackId);
+        if (source == null) {
+            Log.d(TAG, "VideoSource not found for track " + trackId);
+            return;
+        }
+
+        source.setVideoProcessor(processor);
+    }
+
+    void removeVideoProcessor(final String trackId) {
+        Log.d(TAG, "removeVideoProcessor for track " + trackId);
+
+        final VideoSource source = mVideoSources.get(trackId);
+        if (source == null) {
+          Log.d(TAG, "VideoSource not found for track " + trackId);
+          return;
+        }
+
+        source.setVideoProcessor(null);
     }
 }
